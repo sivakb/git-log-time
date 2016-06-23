@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+STDIN.reopen('/dev/tty')
+class String
+	def red;   "\e[31m#{self}\e[0m" end
+	def green; "\e[32m#{self}\e[0m" end
+end
+begin
+	puts "Please enter the time spent for this commit:"
+	time = Integer(gets) rescue false
+	puts "Please enter Integer".red unless time 
+end until time
+
+puts "Thanks for logging the time -> #{time}".green
+outputfile="#{Dir.pwd}/.git/hooks/outputfile"
+git_log_id = `git log --format='%H' -n 1`
+File.open(outputfile, 'a') { 
+	|f| f.write("#{git_log_id.chomp} : #{time} \n") 
+}

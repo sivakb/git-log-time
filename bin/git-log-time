@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require 'git-log-time'
+require 'git-log-time/cli'
+
+repo_root = `git rev-parse --show-toplevel`.strip
+abort "No .git directory found." unless File.directory?(repo_root)
+Dir.chdir repo_root
+GitLogTime::Cli.new(*ARGV).execute or exit 1

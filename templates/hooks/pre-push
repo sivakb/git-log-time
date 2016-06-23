@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+require 'net/http'
+require 'json'
+require 'uri'
+require 'dotenv'
+Dotenv.load
+
+outputfile="#{Dir.pwd}/.git/hooks/outputfile"
+if File.exist?(outputfile)
+	puts "Sending commits to spritle dashboard ......."
+	log_time_values = {"commits" => []}
+	log_time_values["commits"] = Hash[File.read(outputfile).split("\n").map{|i|i.split(':')}]
+	url = ENV["GIT_LOG_TIME_CALLBACK_URL"]
+	uri = URI.parse(url)
+	data = {"name" => "tbone"}
+	headers = {"Content-Type" => "application/json"}
+	http = Net::HTTP.new(uri.host,uri.port)
+	response = http.post(uri.path,log_time_values.to_json,headers)
+	if response.body["success"]
+	  File.delete(outputfile)
+	end
+end
