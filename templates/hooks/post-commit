@@ -24,22 +24,22 @@ end
 commit_id = `git log --format='%H' -n 1`.chomp.strip
 commit_url = origin_url+"/commit/#{commit_id}"
 commit_info={
-	"id": commit_id,
-	"tree_id":  `git log --format='%T' -n 1`.chomp.strip,
-	"message": `git log --format='%s' -n 1`.chomp.strip,
-	"timestamp": `git log --format='%ad' -n 1`.chomp.strip,
-	"url": commit_url,
-	"author": {
-		"name": `git log --format='%an' -n 1`.chomp.strip,
-		"email": `git log --format='%ae' -n 1`.chomp.strip,
+	"id"=> commit_id,
+	"tree_id"=> `git log --format='%T' -n 1`.chomp.strip,
+	"message"=> `git log --format='%s' -n 1`.chomp.strip,
+	"timestamp"=> `git log --format='%ad' -n 1`.chomp.strip,
+	"url"=> commit_url,
+	"author"=> {
+		"name"=> `git log --format='%an' -n 1`.chomp.strip,
+		"email"=> `git log --format='%ae' -n 1`.chomp.strip,
 	},
-	"committer": {
-		"name": `git log --format='%cn' -n 1`.chomp.strip,
-		"email":  `git log --format='%ce' -n 1`.chomp.strip,
+	"committer"=> {
+		"name"=> `git log --format='%cn' -n 1`.chomp.strip,
+		"email"=>  `git log --format='%ce' -n 1`.chomp.strip,
 	},
-	"commit_time": time,
-	"origin_url": origin_url,
-	"modified": [`git diff-tree --no-commit-id --name-only -r "#{commit_id}"`.chomp.strip.split("\n")]
+	"commit_time"=> time,
+	"origin_url"=> origin_url,
+	"modified"=> [`git diff-tree --no-commit-id --name-only -r "#{commit_id}"`.chomp.strip.split("\n")]
 }
 if File.exist?(outputfile)
 	commit_infos = JSON.parse(IO.read(outputfile)).map{|cm| cm.to_json }
