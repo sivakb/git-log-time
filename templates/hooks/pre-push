@@ -5,11 +5,17 @@ require 'uri'
 require 'dotenv'
 Dotenv.load
 
-outputfile="#{Dir.pwd}/.git/hooks/outputfile"
+outputfile="#{Dir.pwd}/.git/hooks/outputfile.json"
 if File.exist?(outputfile)
 	puts "Sending commits to spritle dashboard ......."
-	log_time_values = {"commits" => []}
-	log_time_values["commits"] = Hash[File.read(outputfile).split("\n").map{|i|i.split(':')}]
+	origin_url = `git config --get remote.origin.url`
+	unless (origin_url.include?('https://') || origin_url.include?('http://'))
+		origin_url = origin_url.gsub("git@", "http://").gsub(".git","").gsub(".com:", ".com/")
+	else
+		origin_url = origin_url.gsub(".git","")
+	end
+	log_time_values = {"commits" => [], "origin_url" => origin_url }
+	log_time_values["commits"] = File.read(outputfile)
 	url = ENV["GIT_LOG_TIME_CALLBACK_URL"]
 	uri = URI.parse(url)
 	data = {"name" => "tbone"}

@@ -1,9 +1,12 @@
 #!/usr/bin/env ruby
 STDIN.reopen('/dev/tty')
+require 'json'
+
 class String
 	def red;   "\e[31m#{self}\e[0m" end
 	def green; "\e[32m#{self}\e[0m" end
 end
+
 begin
 	puts "Please enter the time spent for this commit:"
 	time = Integer(gets) rescue false
@@ -11,8 +14,41 @@ begin
 end until time
 
 puts "Thanks for logging the time -> #{time}".green
-outputfile="#{Dir.pwd}/.git/hooks/outputfile"
-git_log_id = `git log --format='%H' -n 1`
-File.open(outputfile, 'a') { 
-	|f| f.write("#{git_log_id.chomp} : #{time} \n") 
+outputfile="#{Dir.pwd}/.git/hooks/outputfile.json"
+origin_url = `git config --get remote.origin.url`
+unless (origin_url.include?('https://') || origin_url.include?('http://'))
+	origin_url = origin_url.gsub("git@", "http://").gsub(".git","").gsub(".com:", ".com/")
+else
+	origin_url = origin_url.gsub(".git","")
+end
+commit_id = `git log --format='%H' -n 1`.chomp.strip
+commit_url = origin_url+"/commit/#{commit_id}"
+commit_info={
+	"id": commit_id,
+	"tree_id":  `git log --format='%T' -n 1`.chomp.strip,
+	"message": `git log --format='%s' -n 1`.chomp.strip,
+	"timestamp": `git log --format='%ad' -n 1`.chomp.strip,
+	"url": commit_url,
+	"author": {
+		"name": `git log --format='%an' -n 1`.chomp.strip,
+		"email": `git log --format='%ae' -n 1`.chomp.strip,
+	},
+	"committer": {
+		"name": `git log --format='%cn' -n 1`.chomp.strip,
+		"email":  `git log --format='%ce' -n 1`.chomp.strip,
+	},
+	"commit_time": time,
+	"origin_url": origin_url,
+	"modified": [`git diff-tree --no-commit-id --name-only -r "#{commit_id}"`.chomp.strip.split("\n")]
 }
+if File.exist?(outputfile)
+	commit_infos = JSON.parse(IO.read(outputfile)).map{|cm| cm.to_json }
+	commit_infos << commit_info.to_json
+	File.open(outputfile, 'w') {
+		|	f| f.write("#{commit_infos}")
+	}
+else
+	File.open(outputfile, 'a') {
+		|	f| f.write("[#{commit_info.to_json}]")
+	}
+end
