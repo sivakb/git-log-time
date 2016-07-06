@@ -31,7 +31,7 @@ module GitLogTime
       if
         hook
       then
-        FileUtils.cp(target, target+ ".backup")
+        FileUtils.cp(target, target+ ".backup") if File.exist?(target)
         FileUtils.mkdir_p(File.dirname(target))
         FileUtils.cp(hook, target)
         FileUtils.chmod(0755, target)
@@ -44,8 +44,13 @@ module GitLogTime
     end
 
     def uninstall
-      FileUtils.mv(target+ ".backup", target)
-      puts "Uninstalled git-log-time"
+      back_up_path = target+ ".backup"
+      if File.exist?(back_up_path)
+        FileUtils.mv(back_up_path, target)
+        puts "Moved #{back_up_path} to #{target}"
+      else
+        puts "Git-log-time not Installed"
+      end
       true
     end
 
