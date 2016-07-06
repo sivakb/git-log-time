@@ -5,24 +5,33 @@ require 'uri'
 require 'dotenv'
 Dotenv.load
 
+class String
+	def red;   "\e[31m#{self}\e[0m" end
+	def green; "\e[32m#{self}\e[0m" end
+end
+
 outputfile="#{Dir.pwd}/.git/hooks/outputfile.json"
-if File.exist?(outputfile)
-	puts "Sending commits to spritle dashboard ......."
-	origin_url = `git config --get remote.origin.url`
-	unless (origin_url.include?('https://') || origin_url.include?('http://'))
-		origin_url = origin_url.gsub("git@", "http://").gsub(".git","").gsub(".com:", ".com/")
-	else
-		origin_url = origin_url.gsub(".git","")
+begin
+	if File.exist?(outputfile)
+		puts "Sending commits to spritle dashboard .......".green
+		origin_url = `git config --get remote.origin.url`
+		unless (origin_url.include?('https://') || origin_url.include?('http://'))
+			origin_url = origin_url.gsub("git@", "http://").gsub(".git","").gsub(".com:", ".com/")
+		else
+			origin_url = origin_url.gsub(".git","")
+		end
+		log_time_values = {"commits" => [], "origin_url" => origin_url }
+		log_time_values["commits"] = File.read(outputfile)
+		url = ENV["GIT_LOG_TIME_CALLBACK_URL"]
+		uri = URI.parse(url)
+		data = {"name" => "tbone"}
+		headers = {"Content-Type" => "application/json"}
+		http = Net::HTTP.new(uri.host,uri.port)
+		response = http.post(uri.path,log_time_values.to_json,headers)
+		if response.body["success"]
+		  File.delete(outputfile)
+		end
 	end
-	log_time_values = {"commits" => [], "origin_url" => origin_url }
-	log_time_values["commits"] = File.read(outputfile)
-	url = ENV["GIT_LOG_TIME_CALLBACK_URL"]
-	uri = URI.parse(url)
-	data = {"name" => "tbone"}
-	headers = {"Content-Type" => "application/json"}
-	http = Net::HTTP.new(uri.host,uri.port)
-	response = http.post(uri.path,log_time_values.to_json,headers)
-	if response.body["success"]
-	  File.delete(outputfile)
-	end
+rescue => e
+	puts "#{e}".red
 end
