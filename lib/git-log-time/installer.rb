@@ -31,6 +31,7 @@ module GitLogTime
       if
         hook
       then
+        FileUtils.cp(target, target+ ".backup")
         FileUtils.mkdir_p(File.dirname(target))
         FileUtils.cp(hook, target)
         FileUtils.chmod(0755, target)
@@ -40,6 +41,12 @@ module GitLogTime
         warn "Could not find template #{key}"
         false
       end
+    end
+
+    def uninstall
+      FileUtils.mv(target+ ".backup", target)
+      puts "Uninstalled git-log-time"
+      true
     end
 
   private

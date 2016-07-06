@@ -21,18 +21,20 @@ module GitLogTime
     end
 
     def execute_help(*args)
-      warn "Unknown parameters: #{args.map(&:inspect) * " "}" unless args.empty?
       warn "Usage: git-log-time install"
-      warn "Usage: git-log-time list"
-      warn "Usage: git-log-time plugins"
-      warn "Usage: git-log-time new plugin-name 'Author Name' author@email 'description of the plugin'"
-      warn "Usage: git-log-time <enable|disable> <git|yaml> <checks|warnings> check1 [check2...]"
+      warn "Usage: git-log-time uninstall"
       args.empty? # return status, it's ok if user requested help
     end
 
     def execute_install(key = nil, *args)
       ['post-commit', 'pre-push' ].each do |key|
         GitLogTime::Installer.new(key).install
+      end
+    end
+
+    def execute_uninstall(key = nil, *args)
+      ['post-commit', 'pre-push' ].each do |key|
+        GitLogTime::Installer.new(key).uninstall
       end
     end
 
