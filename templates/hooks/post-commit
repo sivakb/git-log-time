@@ -42,7 +42,7 @@ commit_info={
 	"modified"=> [`git diff-tree --no-commit-id --name-only -r "#{commit_id}"`.chomp.strip.split("\n")]
 }
 if File.exist?(outputfile)
-	commit_infos = JSON.parse(IO.read(outputfile)).map{|cm| cm.to_json }
+	commit_infos = JSON.parse(IO.read(outputfile)).map{|cm| cm.class == String ? cm : cm.to_json }
 	commit_infos << commit_info.to_json
 	File.open(outputfile, 'w') {
 		|	f| f.write("#{commit_infos}")
