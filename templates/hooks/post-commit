@@ -8,7 +8,7 @@ class String
 end
 
 begin
-	puts "Please enter the time spent for this commit:"
+	puts "Please enter the time(in minutes) spent for this commit:"
 	time = Integer(gets) rescue false
 	puts "Please enter Integer".red unless time 
 end until time

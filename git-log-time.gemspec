@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'git-log-time'
   s.version     = '0.0.3'
-  s.date        = '2016-06-18'
+  s.date        = '2016-10-18'
   s.summary     = 'git log time'
   s.description = 'git log time is used get time from user for each commit'
   s.authors     = ['Siva', 'Suren']
