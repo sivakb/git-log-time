@@ -11,3 +11,8 @@ Use this command to install git-log-time
 `git-log-time install`
 
 You specify the web application path using env file like this, GIT_LOG_TIME_CALLBACK_URL=http://localhost:3000/commit_details
+
+License
+============
+
+This project is released under the MIT license.
